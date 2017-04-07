@@ -1,8 +1,6 @@
 package si.csp;
 
 
-import si.csp.utils.Drawer;
-
 public class Main {
 
 
