@@ -1,66 +1,52 @@
 package si.csp.utils;
 
-import org.jetbrains.annotations.Contract;
-import si.csp.gc_csp.CSPStrategy;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Jakub Licznerski
  *         Created on 05.04.2017.
  */
 public class Pointer {
-    private int rowIndex;
     private int colIndex;
+    private int rowIndex;
 
-    public Pointer(int rowIndex, int colIndex) {
+    public Pointer(int colIndex, int rowIndex) {
         this.rowIndex = rowIndex;
         this.colIndex = colIndex;
     }
 
-    public int getRowIndex() {
-        return rowIndex;
+    public static Pointer build(int colIndex, int rowIndex, int N) {
+        if (colIndex > N - 1 ||
+                colIndex < 0 ||
+                rowIndex > N - 1 ||
+                rowIndex < 0) {
+            return null;
+        }
+        return new Pointer(colIndex, rowIndex);
     }
 
     public int getColIndex() {
         return colIndex;
     }
 
-//    /**
-//     * Moves pointer to next node
-//     *
-//     * @return
-//     */
-//    public boolean next() {
-//        //todo implement body
-//        return false;
-//    }
-//
-//    /**
-//     * Moves pointer to previous node
-//     *
-//     * @return
-//     */
-//    public boolean previous() {
-//        //todo implement body
-//        return false;
-//    }
-
-//    private boolean isValid() {
-//        return !(rowIndex < 0 || rowIndex >= N) && !(colIndex < 0 || colIndex >= N);
-//    }
-
-
-    public void setRowIndex(int rowIndex) {
-        this.rowIndex = rowIndex;
+    public int getRowIndex() {
+        return rowIndex;
     }
 
     public void setColIndex(int colIndex) {
         this.colIndex = colIndex;
     }
 
+    public void setRowIndex(int rowIndex) {
+        this.rowIndex = rowIndex;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Pointer)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof Pointer))
+            return false;
 
         Pointer pointer = (Pointer) o;
         return rowIndex == pointer.rowIndex && colIndex == pointer.colIndex;

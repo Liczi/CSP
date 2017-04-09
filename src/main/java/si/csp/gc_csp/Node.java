@@ -39,10 +39,6 @@ public class Node {
         return possible;
     }
 
-//    public void setPossible(int[] possible) {
-//        this.possible = possible;
-//    }
-
     public int getLastPossible() {
         return lastPossible;
     }

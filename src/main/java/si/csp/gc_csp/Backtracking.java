@@ -12,6 +12,8 @@ import java.util.List;
  */
 public class Backtracking extends CSPStrategy {
 
+    private final int UNIT_COST = 1;
+
     private List<int[][]> result;
 
     public Backtracking(int n, GraphIterator iterator) {
@@ -23,9 +25,12 @@ public class Backtracking extends CSPStrategy {
         result = new ArrayList<>();
         iterator.initialize(N);
         stepForward(iterator.next());
-
-        //todo implement body
         return result;
+    }
+
+    @Override
+    protected int getUnitCost() {
+        return UNIT_COST;
     }
 
     /**
@@ -41,11 +46,12 @@ public class Backtracking extends CSPStrategy {
             currentNode.setCurrentAsLastPossible();
             if (checkConstraints(current)) {
                 if (iterator.hasNext()) {
-                    //todo increase cost (we enter new node)
+                    //increase cost (we enter new node)
+                    increaseCost();
                     stepForward(iterator.next());
                 } else { //we have a winner!
-                    //todo add current configuration to results, decrease domain and run again same node
-                    saveCurrent();
+                    //add current solution to results, decrease domain and run again same node
+                    saveSolution(getCurrentSolution());
                     currentNode.setCurrent(0);
                     currentNode.setLastPossible(currentNode.getLastPossible() - 1);
                     stepForward(current);
@@ -61,13 +67,12 @@ public class Backtracking extends CSPStrategy {
         else {
             currentNode.setCurrent(0);
             currentNode.setLastPossible(currentNode.getDomainSize() - 1);
-            if (!iterator.hasPrevious()) {
-                return; //todo verify if return needed
-            } else {
-                //todo update edges (delete all edges from current pointer)
-                //todo increase cost (we enter new node)
-                stepBackward(iterator.previous());
-            }
+
+            //update edges (delete all edges from current pointer)
+            deleteEdges(current);
+            //increase cost (we enter new node)
+            increaseCost();
+            stepBackward(iterator.previous());
         }
     }
 
@@ -81,7 +86,7 @@ public class Backtracking extends CSPStrategy {
 
         if (currentNode.getLastPossible() > -1) {
             currentNode.setCurrentAsLastPossible();
-            if (checkConstraints(current)) { //ok, go on
+            if (checkConstraints(current)) {
                 stepForward(iterator.next());
             } else { //constraints not met, next value
                 stepBackward(current);
@@ -95,5 +100,9 @@ public class Backtracking extends CSPStrategy {
             } //if this condition not met, end of program
         }
         //todo consider other options
+    }
+
+    private void saveSolution(int[][] solution) {
+        result.add(solution);
     }
 }

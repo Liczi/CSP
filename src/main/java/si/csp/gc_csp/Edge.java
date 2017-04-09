@@ -27,14 +27,37 @@ public class Edge {
         return secondValue;
     }
 
+    public Pointer getFirstNode() {
+        return firstNode;
+    }
+
+    public Pointer getSecondNode() {
+        return secondNode;
+    }
+
+    public boolean contains(Pointer pointer) {
+        return firstNode.equals(pointer) || secondNode.equals(pointer);
+    }
+
+    public boolean contains(int value1, int value2) {
+        return (firstValue == value1 && secondValue == value2) ||
+                (firstValue == value2 && secondValue == value1);
+    }
+
+    /**
+     * Used for Set purposes
+     *
+     * @param o other
+     * @return true if the edge represents the same pair of values as <e>o</e>
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Edge)) return false;
 
         Edge edge = (Edge) o;
-        return firstValue == edge.firstValue && secondValue == edge.secondValue ||
-                firstValue == edge.secondValue && secondValue == edge.firstValue;
+        return (firstValue == edge.firstValue && secondValue == edge.secondValue) ||
+                (firstValue == edge.secondValue && secondValue == edge.firstValue);
     }
 
     @Override

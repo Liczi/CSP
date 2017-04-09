@@ -2,12 +2,8 @@ package si.csp.gc_csp;
 
 import si.csp.utils.GraphIterator;
 import si.csp.utils.Pointer;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -19,18 +15,19 @@ public abstract class CSPStrategy {
     protected Node[][] graph;
     protected GraphIterator iterator;
     protected int N;
-    //    private Pointer pointer;
     protected Set<Edge> edges;
+    private int cost;
 
     public CSPStrategy(int n, GraphIterator iterator) {
         initialize(n);
         this.iterator = iterator;
     }
 
-    public void initialize(int N) {
+    private void initialize(int N) {
+        cost = 0;
         edges = new HashSet<>(); //todo consider sorted set
         this.N = N;
-        int domainSize = N % 2 == 0 ? N : N + 1;
+        int domainSize = N % 2 == 0 ? 2 * N : 2 * N + 1;
         int[] domain = new int[domainSize];
 
         //create domain {1, ... , domainSize}
@@ -39,31 +36,16 @@ public abstract class CSPStrategy {
         Node.setDomain(domain);
 
         graph = new Node[N][N];
+
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                graph[j][i] = new Node();
+            }
+        }
     }
 
     /**
-     * Return an array of neighboring Nodes' values
-     *
-     * @param pointer pointer on the Node
-     * @return array of current values of neighbours
-     */
-//    protected Integer[] getNeighbours(Pointer pointer) {
-//        Stream.Builder<Pointer> builder = Stream.builder();
-//        for (int i = -1; i < 2; i += 2) {
-//            builder.add(new Pointer(pointer.getRowIndex() + i, pointer.getRowIndex()));
-//        }
-//        for (int i = -1; i < 2; i += 2) {
-//            builder.add(new Pointer(pointer.getRowIndex(), pointer.getColIndex() + i));
-//        }
-//
-//        return builder.build()
-//                .map(this::getNodeValue)
-//                .filter(value -> value > 0)
-//                .toArray(Integer[]::new);
-//    }
-
-    /**
-     * Return an array of neighboring Nodes
+     * Return an array of neighboring Nodes, which values are set (non-zero)
      *
      * @param pointer pointer on the Node
      * @return array of neighbours
@@ -71,14 +53,14 @@ public abstract class CSPStrategy {
     protected Pointer[] getNeighbours(Pointer pointer) {
         Stream.Builder<Pointer> builder = Stream.builder();
         for (int i = -1; i < 2; i += 2) {
-            builder.add(new Pointer(pointer.getRowIndex() + i, pointer.getRowIndex()));
+            builder.add(Pointer.build(pointer.getColIndex() + i, pointer.getRowIndex(), N));
         }
         for (int i = -1; i < 2; i += 2) {
-            builder.add(new Pointer(pointer.getRowIndex(), pointer.getColIndex() + i));
+            builder.add(Pointer.build(pointer.getColIndex(), pointer.getRowIndex() + i, N));
         }
 
         return builder.build()
-                .filter(ptr -> getNodeValue(ptr) > 0)
+                .filter(ptr -> ptr != null && getNodeValue(ptr) > 0)
                 .toArray(Pointer[]::new);
     }
 
@@ -94,10 +76,10 @@ public abstract class CSPStrategy {
      */
 
     protected boolean checkConstraints(Pointer current) {
-        return updateEdges(current) &&
-                Arrays.stream(getNeighbours(current))
-                        .map(this::getNodeValue)
-                        .noneMatch(value -> value == getNodeValue(current));
+        return Arrays.stream(getNeighbours(current))
+                .map(this::getNodeValue)
+                .noneMatch(value -> value == getNodeValue(current))
+                && updateEdges(current);
     }
 
     /**
@@ -107,35 +89,72 @@ public abstract class CSPStrategy {
      * @return false if uniqueness of set is violated
      */
     //todo make sure to updateEdges on reseting node (on stepBackward?)
-    protected boolean updateEdges(Pointer current) {
+    private boolean updateEdges(Pointer current) {
         int currentValue = getNodeValue(current);
         //todo delete this check
-        if (currentValue == 0) {
-            throw new IllegalStateException("Current node value not set");
-        }
+//        if (currentValue == 0) {
+//            throw new IllegalStateException("Current node value not set");
+//        }
+
+        //todo think if it wouldnt be better to create edges, check via contains and then add if necessary
+//        boolean valid = Arrays.stream(neighbours)
+//                .map(neighbour -> edges.stream()
+//                        .anyMatch(edge -> edge.contains(currentValue, getNodeValue(neighbour))))
+//                .reduce(Boolean::logicalAnd)
+//                .get();
+//
+//        if (valid) {
+//            for (Pointer p :
+//                    neighbours) {
+//                edges.add(new Edge(getNodeValue(p), currentValue, p, current));
+//            }
+//            return true;
+//        }
+//        return false;
 
         Pointer[] neighbours = getNeighbours(current);
-        for (Pointer p :
-                neighbours) {
-            if (!edges.add(new Edge(getNodeValue(p), currentValue, p, current)))
+        Set<Edge> newEdges = new HashSet<>();
+        for (Pointer p : neighbours) {
+            if (!newEdges.add(new Edge(getNodeValue(p), currentValue, p, current)))
                 return false;
         }
+        if (newEdges.stream().noneMatch(newEdge -> edges.contains(newEdge))) {
+            edges.addAll(newEdges);
+            return true;
+        }
+        return false;
+    }
 
-        return true;
+    protected void deleteEdges(Pointer pointer) {
+        //todo check why edge.contains very often checks for the last node
+        edges.removeIf(edge -> edge.contains(pointer));
     }
 
     protected Node getNodeAt(Pointer pointer) {
-        return graph[pointer.getRowIndex()][pointer.getColIndex()];
+        return graph[pointer.getColIndex()][pointer.getRowIndex()];
     }
 
     /**
-     * Saves the current graph state to result
+     * @return solution based on the current graph state
      */
-    protected void saveCurrent() {
-        //todo implement
-        throw new NotImplementedException();
+    protected int[][] getCurrentSolution() {
+        return Arrays.stream(graph)
+                .map(nodes -> Arrays.stream(nodes)
+                        .mapToInt(Node::getCurrent)
+                        .toArray())
+                .toArray(int[][]::new);
+    }
+
+    protected void increaseCost() {
+        cost += getUnitCost();
+    }
+
+    public int getCost() {
+        return cost;
     }
 
     abstract public List<int[][]> solve();
+
+    abstract protected int getUnitCost();
 }
 

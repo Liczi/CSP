@@ -9,23 +9,23 @@ package si.csp.utils;
 public class BaseGraphIterator extends GraphIterator {
     @Override
     public boolean hasNext() {
-        return current.getRowIndex() < N - 1 || current.getColIndex() < N - 1;
+        return current.getColIndex() < N - 1 || current.getRowIndex() < N - 1;
     }
 
     @Override
     public boolean hasPrevious() {
-        return current.getRowIndex() > 0 || current.getColIndex() > 0;
+        return current.getColIndex() > 0 || current.getRowIndex() > 0;
     }
 
     @Override
     public Pointer next() {
-        if (current.getRowIndex() < N - 1) {
-            current.setRowIndex(current.getRowIndex() + 1);
+        if (current.getColIndex() < N - 1) {
+            current.setColIndex(current.getColIndex() + 1);
             return current;
         }
-        else if (current.getColIndex() < N - 1) {
-            current.setRowIndex(0);
-            current.setColIndex(current.getColIndex() + 1);
+        else if (current.getRowIndex() < N - 1) {
+            current.setColIndex(0);
+            current.setRowIndex(current.getRowIndex() + 1);
             return current;
         }
         throw new IllegalStateException("Called next on the last element");
@@ -33,13 +33,13 @@ public class BaseGraphIterator extends GraphIterator {
 
     @Override
     public Pointer previous() {
-        if (current.getRowIndex() > 0) {
-            current.setRowIndex(current.getRowIndex() - 1);
+        if (current.getColIndex() > 0) {
+            current.setColIndex(current.getColIndex() - 1);
             return current;
         }
-        else if (current.getColIndex() > 0) {
-            current.setRowIndex(N - 1);
-            current.setColIndex(current.getColIndex() - 1);
+        else if (current.getRowIndex() > 0) {
+            current.setColIndex(N - 1);
+            current.setRowIndex(current.getRowIndex() - 1);
             return current;
         }
         throw new IllegalStateException("Called previous on the first element");
