@@ -1,5 +1,6 @@
 package si.csp.gc_csp;
 
+import si.csp.Runner;
 import si.csp.utils.GraphIterator;
 import si.csp.utils.Pointer;
 
@@ -44,6 +45,8 @@ public class Backtracking extends CSPStrategy {
         //there is some possible value for this node
         if (currentNode.getLastPossible() > -1) {
             currentNode.setCurrentAsLastPossible();
+            //Runner.displayResult(getCurrentSolution());
+//            boolean constraints = ;
             if (checkConstraints(current)) {
                 if (iterator.hasNext()) {
                     //increase cost (we enter new node)
@@ -54,11 +57,13 @@ public class Backtracking extends CSPStrategy {
                     saveSolution(getCurrentSolution());
                     currentNode.setCurrent(0);
                     currentNode.setLastPossible(currentNode.getLastPossible() - 1);
+                    deleteEdges(current);
                     stepForward(current);
                 }
             } else { //selected value violates constraints
                 currentNode.setCurrent(0);
                 currentNode.setLastPossible(currentNode.getLastPossible() - 1);
+                deleteEdges(current);
                 stepForward(current);
             }
         }
@@ -69,7 +74,6 @@ public class Backtracking extends CSPStrategy {
             currentNode.setLastPossible(currentNode.getDomainSize() - 1);
 
             //update edges (delete all edges from current pointer)
-            deleteEdges(current);
             //increase cost (we enter new node)
             increaseCost();
             stepBackward(iterator.previous());
@@ -83,12 +87,14 @@ public class Backtracking extends CSPStrategy {
         //reject current value, because it doesnt match any further configuration
         currentNode.setCurrent(0);
         currentNode.setLastPossible(currentNode.getLastPossible() - 1);
+        deleteEdges(current);
 
-        if (currentNode.getLastPossible() > -1) {
+        if (currentNode.getLastPossible() > - 1) {
             currentNode.setCurrentAsLastPossible();
             if (checkConstraints(current)) {
                 stepForward(iterator.next());
             } else { //constraints not met, next value
+                deleteEdges(current);
                 stepBackward(current);
             }
             //there must be next, because we did step back!
@@ -96,10 +102,10 @@ public class Backtracking extends CSPStrategy {
         else {
             if (iterator.hasPrevious()) {
                 currentNode.setLastPossible(currentNode.getDomainSize() - 1);
+                deleteEdges(current);
                 stepBackward(iterator.previous());
             } //if this condition not met, end of program
         }
-        //todo consider other options
     }
 
     private void saveSolution(int[][] solution) {

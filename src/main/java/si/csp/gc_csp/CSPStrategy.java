@@ -1,5 +1,6 @@
 package si.csp.gc_csp;
 
+import si.csp.utils.BaseGraphIterator;
 import si.csp.utils.GraphIterator;
 import si.csp.utils.Pointer;
 
@@ -96,6 +97,22 @@ public abstract class CSPStrategy {
 //            throw new IllegalStateException("Current node value not set");
 //        }
 
+//        //todo delete this check
+//        GraphIterator iterator = new BaseGraphIterator();
+//        iterator.initialize(N);
+//        while(iterator.hasNext()) {
+//            if (iterator.next().equals(current)) break;
+//        }
+//        int dist = 0;
+//        while(iterator.hasPrevious()) {
+//            iterator.previous();
+//            dist++;
+//        }
+//        int x;
+//        if(dist != edges.size())
+//           x=1;
+//        //delete up
+
         //todo think if it wouldnt be better to create edges, check via contains and then add if necessary
 //        boolean valid = Arrays.stream(neighbours)
 //                .map(neighbour -> edges.stream()
@@ -128,6 +145,8 @@ public abstract class CSPStrategy {
     protected void deleteEdges(Pointer pointer) {
         //todo check why edge.contains very often checks for the last node
         edges.removeIf(edge -> edge.contains(pointer));
+
+        int x=0;
     }
 
     protected Node getNodeAt(Pointer pointer) {

@@ -54,6 +54,22 @@ public class CSPStrategyTest {
         Assert.assertArrayEquals(expected, strategy.getNeighbours(new Pointer(1, 1)));
     }
 
+    @Test
+    public void updateEdgesTest() {
+        strategy = new Backtracking(2, null);
+        strategy.graph = prepareInvalidEdgesGraph2x2();
+
+        displayResult(strategy.getCurrentSolution());
+
+        Assert.assertTrue(strategy.checkConstraints(new Pointer(0,0)));
+
+        strategy.graph[1][1].setCurrent(1);
+        Assert.assertFalse(strategy.checkConstraints(new Pointer(1,1)));
+        displayResult(strategy.getCurrentSolution());
+
+    }
+
+
     private Node[][] prepareGraph(int n) {
         Node[][] result = new Node[n][n];
 
@@ -67,28 +83,44 @@ public class CSPStrategyTest {
         return result;
     }
 
+    private Node[][] prepareInvalidEdgesGraph2x2() {
+        Node n1 = new Node();
+        n1.setCurrent(1);
+        Node n2 = new Node();
+        n2.setCurrent(2);
+        Node n3 = new Node();
+        n3.setCurrent(3);
+        Node n4 = new Node();
+        n4.setCurrent(0);
 
-//    private static void displayResult(int[][] result) {
-//        int N = result.length;
-//        for (int i = 0; i < N; i++) {
-//            for (int j = 0; j < N; j++) {
-//                if (j == N - 1)
-//                    System.out.print(result[j][i]);
-//                else
-//                    System.out.print(result[j][i] + "-");
-//            }
-//            System.out.print("\n");
-//            if (i < N - 1) {
-//                for (int j = 0; j < N; j++) {
-//                    System.out.print("| ");
-//                }
-//                System.out.print("\n");
-//            }
-//        }
-//
-//        for (int i = 0; i < 2 * N + 1; i++) {
-//            System.out.print("_");
-//        }
-//        System.out.println("\n");
-//    }
+        return new Node[][]{
+                {n1, n3},
+                {n2, n4}
+        };
+    }
+
+
+    private static void displayResult(int[][] result) {
+        int N = result.length;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                if (j == N - 1)
+                    System.out.print(result[j][i]);
+                else
+                    System.out.print(result[j][i] + "-");
+            }
+            System.out.print("\n");
+            if (i < N - 1) {
+                for (int j = 0; j < N; j++) {
+                    System.out.print("| ");
+                }
+                System.out.print("\n");
+            }
+        }
+
+        for (int i = 0; i < 2 * N + 1; i++) {
+            System.out.print("_");
+        }
+        System.out.println("\n");
+    }
 }

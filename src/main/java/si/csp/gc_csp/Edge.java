@@ -15,8 +15,14 @@ public class Edge {
     public Edge(int firstValue, int secondValue, Pointer firstNode, Pointer secondNode) {
         this.firstValue = firstValue;
         this.secondValue = secondValue;
-        this.firstNode = firstNode;
-        this.secondNode = secondNode;
+        this.firstNode = new Pointer(firstNode);
+        this.secondNode = new Pointer(secondNode);
+
+//        Pointer left = new Pointer(0,0);
+//        Pointer right = new Pointer(1,1);
+//
+//        if(left.equals(firstNode) && right.equals(secondNode) || left.equals(secondNode) &&  right.equals(firstNode))
+//            this.secondNode = secondNode;
     }
 
     public int getFirstValue() {
@@ -39,11 +45,6 @@ public class Edge {
         return firstNode.equals(pointer) || secondNode.equals(pointer);
     }
 
-    public boolean contains(int value1, int value2) {
-        return (firstValue == value1 && secondValue == value2) ||
-                (firstValue == value2 && secondValue == value1);
-    }
-
     /**
      * Used for Set purposes
      *
@@ -62,8 +63,6 @@ public class Edge {
 
     @Override
     public int hashCode() {
-        int result = firstValue;
-        result = 31 * result + secondValue;
-        return result;
+        return firstValue + secondValue;
     }
 }

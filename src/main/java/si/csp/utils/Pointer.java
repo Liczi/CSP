@@ -1,7 +1,5 @@
 package si.csp.utils;
 
-import org.jetbrains.annotations.Nullable;
-
 /**
  * @author Jakub Licznerski
  *         Created on 05.04.2017.
@@ -13,6 +11,12 @@ public class Pointer {
     public Pointer(int colIndex, int rowIndex) {
         this.rowIndex = rowIndex;
         this.colIndex = colIndex;
+    }
+
+    //copy constructor
+    public Pointer(Pointer pointer) {
+        this.rowIndex = pointer.getRowIndex();
+        this.colIndex = pointer.getColIndex();
     }
 
     public static Pointer build(int colIndex, int rowIndex, int N) {
