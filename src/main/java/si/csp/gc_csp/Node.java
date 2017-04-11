@@ -47,6 +47,36 @@ public class Node {
         return domain.length;
     }
 
+    //sets possible all values from domain
+    void restoreDomain() {
+        current = 0;
+        for (int i = 0; i < domain.length; i++) {
+            possible[i] = domain[i];
+        }
+        lastPossible = possible.length - 1;
+    }
+
+    void removeFromDomain(int value) {
+        for (int i = 0; i < possible.length; i++) {
+            if (possible[i] == value) {
+                possible[i] = 0;
+                if (lastPossible == i)
+                    lastPossible--;
+                return;
+            }
+        }
+    }
+
+    void decrementLastPossible() {
+        for (int i = lastPossible - 1; i > -1; i--) {
+            if (possible[i] > 0) {
+                lastPossible = i;
+                return;
+            }
+
+        }
+    }
+
     void setCurrentAsLastPossible() {
         setCurrent(possible[lastPossible]);
     }

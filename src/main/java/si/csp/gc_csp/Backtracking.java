@@ -3,8 +3,7 @@ package si.csp.gc_csp;
 import si.csp.utils.GraphIterator;
 import si.csp.utils.Pointer;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Jakub Licznerski
@@ -100,6 +99,44 @@ public class Backtracking extends CSPStrategy {
         }
 
         return null;
+    }
+
+    /**
+     * Checks constraints for all nodes till current Pointer
+     *
+     * @param current node
+     * @return false if constraints are violated
+     */
+
+    private boolean checkConstraints(Pointer current) {
+        return Arrays.stream(getNeighbours(current))
+                .map(this::getNodeValue)
+                .noneMatch(value -> value == getNodeValue(current))
+                && updateEdges(current);
+    }
+
+    /**
+     * Updates the edges Set and checks the uniqueness of edges
+     *
+     * @param current pointer to the current node
+     * @return false if uniqueness of set is violated
+     */
+    private boolean updateEdges(Pointer current) {
+        int currentValue = getNodeValue(current);
+
+        Pointer[] neighbours = getNeighbours(current);
+        Set<Edge> newEdges = new HashSet<>();
+
+        for (Pointer p : neighbours) {
+            if (!newEdges.add(new Edge(getNodeValue(p), currentValue, p, current)))
+                return false;
+        }
+
+        if (newEdges.stream().noneMatch(newEdge -> edges.contains(newEdge))) {
+            edges.addAll(newEdges);
+            return true;
+        }
+        return false;
     }
 
     private void saveSolution(int[][] solution) {

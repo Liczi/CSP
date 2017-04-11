@@ -4,6 +4,7 @@ import si.csp.utils.BaseGraphIterator;
 import si.csp.utils.GraphIterator;
 import si.csp.utils.Pointer;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -66,46 +67,18 @@ public abstract class CSPStrategy {
                 .toArray(Pointer[]::new);
     }
 
+    //todo method vulnerable to traversing direction
+    protected Pointer[] getSuccessors(Pointer pointer) {
+        return Stream.of(
+                Pointer.build(pointer.getColIndex() + 1, pointer.getRowIndex(), N),
+                Pointer.build(pointer.getColIndex(), pointer.getRowIndex() + 1, N)
+        )
+                .filter(Objects::nonNull)
+                .toArray(Pointer[]::new);
+    }
+
     protected int getNodeValue(Pointer pointer) {
         return getNodeAt(pointer).getCurrent();
-    }
-
-    /**
-     * Checks constraints for all nodes till current Pointer
-     *
-     * @param current node
-     * @return false if constraints are violated
-     */
-
-    protected boolean checkConstraints(Pointer current) {
-        return Arrays.stream(getNeighbours(current))
-                .map(this::getNodeValue)
-                .noneMatch(value -> value == getNodeValue(current))
-                && updateEdges(current);
-    }
-
-    /**
-     * Updates the edges Set and checks the uniqueness of edges
-     *
-     * @param current pointer to the current node
-     * @return false if uniqueness of set is violated
-     */
-    private boolean updateEdges(Pointer current) {
-        int currentValue = getNodeValue(current);
-
-        Pointer[] neighbours = getNeighbours(current);
-        Set<Edge> newEdges = new HashSet<>();
-
-        for (Pointer p : neighbours) {
-            if (!newEdges.add(new Edge(getNodeValue(p), currentValue, p, current)))
-                return false;
-        }
-
-        if (newEdges.stream().noneMatch(newEdge -> edges.contains(newEdge))) {
-            edges.addAll(newEdges);
-            return true;
-        }
-        return false;
     }
 
     protected void deleteEdges(Pointer pointer) {

@@ -39,6 +39,11 @@ public class Edge {
         return firstNode.equals(pointer) || secondNode.equals(pointer);
     }
 
+    public boolean contains(int firstValue, int secondValue) {
+        return (firstValue == this.firstValue && secondValue == this.secondValue) ||
+                (firstValue == this.secondValue && secondValue == this.firstValue);
+    }
+
     /**
      * Used for Set purposes
      *
