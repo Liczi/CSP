@@ -3,6 +3,7 @@ package si.csp.gc_csp;
 import si.csp.utils.GraphIterator;
 import si.csp.utils.Pointer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,6 +14,8 @@ import java.util.List;
 public class ForwardChecking extends CSPStrategy {
 
     //todo powrot zrobic poprzez usuniecie wartosci
+    private List<int[][]> result;
+
 
     public ForwardChecking(int n, GraphIterator iterator) {
         super(n, iterator);
@@ -20,7 +23,15 @@ public class ForwardChecking extends CSPStrategy {
 
     @Override
     public List<int[][]> solve() {
-        return null;
+        result = new ArrayList<>();
+
+        Pointer next = iterator.next();
+        while (next != null) {
+            next = stepForward(next);
+            if (next != null)
+                next = stepBackward(next);
+        }
+        return result;
     }
 
     private Pointer stepForward(Pointer current) {
@@ -35,6 +46,19 @@ public class ForwardChecking extends CSPStrategy {
             return stepForward(next);
         } else { //we are at the last node, save all current domain values to the result
 
+            //todo add results and reset this node
+            return iterator.previous();
+        }
+    }
+
+    private Pointer stepBackward(Pointer pointer) {
+
+        if (iterator.hasPrevious()) {
+            //todo reset this node
+            return iterator.previous();
+        } else { //we are at starting node
+            //todo check if there are values to assign (probably no recursion)
+            return null;
         }
     }
 
