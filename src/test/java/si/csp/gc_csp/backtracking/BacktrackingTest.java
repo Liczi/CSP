@@ -1,10 +1,9 @@
-package si.csp.gc_csp;
+package si.csp.gc_csp.backtracking;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import si.csp.gc_csp.backtracking.Backtracking;
-import si.csp.gc_csp.backtracking.Node;
 import si.csp.utils.Pointer;
 
 
@@ -12,11 +11,11 @@ import si.csp.utils.Pointer;
  * @author Jakub Licznerski
  *         Created on 08.04.2017.
  */
-public class CSPStrategyTest {
+public class BacktrackingTest {
 
     private final int N = 3;
 
-    private CSPStrategy strategy;
+    private Backtracking strategy;
 
     @Before
     public void init() {
@@ -71,12 +70,12 @@ public class CSPStrategyTest {
     }
 
 
-    private Node[][] prepareGraph(int n) {
-        Node[][] result = new Node[n][n];
+    private NodeB[][] prepareGraph(int n) {
+        NodeB[][] result = new NodeB[n][n];
 
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                Node current = new Node();
+                NodeB current = new NodeB();
                 current.setCurrent(i + j + 1);
                 result[j][i] = current;
             }
@@ -84,17 +83,17 @@ public class CSPStrategyTest {
         return result;
     }
 
-    private Node[][] prepareInvalidEdgesGraph2x2() {
-        Node n1 = new Node();
+    private NodeB[][] prepareInvalidEdgesGraph2x2() {
+        NodeB n1 = new NodeB();
         n1.setCurrent(1);
-        Node n2 = new Node();
+        NodeB n2 = new NodeB();
         n2.setCurrent(2);
-        Node n3 = new Node();
+        NodeB n3 = new NodeB();
         n3.setCurrent(3);
-        Node n4 = new Node();
+        NodeB n4 = new NodeB();
         n4.setCurrent(0);
 
-        return new Node[][]{
+        return new NodeB[][]{
                 {n1, n3},
                 {n2, n4}
         };

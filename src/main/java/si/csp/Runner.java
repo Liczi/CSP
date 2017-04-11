@@ -6,7 +6,6 @@ import si.csp.gc_csp.CSPStrategy;
 import si.csp.utils.BaseGraphIterator;
 import si.csp.utils.GraphIterator;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class Runner {
@@ -16,13 +15,11 @@ public class Runner {
     static public void main(String args[]) {
         //backtracking with standard from first to last heuristic
         GraphIterator baseIterator = new BaseGraphIterator(UNIT_COST);
-        CSPStrategy backtracking = new Backtracking(4, baseIterator);
+        CSPStrategy backtracking = new Backtracking(2, baseIterator);
         long now = System.currentTimeMillis();
         List<int[][]> results = backtracking.solve();
         System.out.println("Rozwiązania znaleziono w: " + ((double)(System.currentTimeMillis() - now))/1000 + " sekund");
         System.out.println("Znaleziono " + results.size() + " rozwiązań, koszt: " + backtracking.getCost());
-//        System.out.println(results.stream().filter(Arrays::eq).count());
-//        results.stream().limit(100).forEach(Runner::displayResults);
     }
 
     public static void displayResults(int[][] result) {
