@@ -8,6 +8,7 @@ package si.csp.utils;
  */
 public abstract class GraphIterator {
 
+
     protected int N;
 
     protected Pointer current;
@@ -20,7 +21,26 @@ public abstract class GraphIterator {
 
     public abstract Pointer previous();
 
-    //todo make sure its called
+    protected long cost;
+
+    private int unitCost;
+
+    public GraphIterator(int unitCost) {
+        this.cost = 0;
+        this.unitCost = unitCost;
+    }
+
+    protected void increaseCost() {
+        cost += unitCost;
+    }
+
+    public long getCost() {
+        return cost;
+    }
+
+    public void setN(int N) {
+        this.N = N;
+    }
 
     /**
      * Resets the iterator to its initial node and returns new iterator (first before collection)
@@ -28,5 +48,4 @@ public abstract class GraphIterator {
      * @param N size of NxN array
      * @return
      */
-    public abstract GraphIterator initialize(int N);
 }

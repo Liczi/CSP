@@ -17,12 +17,6 @@ public class Edge {
         this.secondValue = secondValue;
         this.firstNode = new Pointer(firstNode);
         this.secondNode = new Pointer(secondNode);
-
-//        Pointer left = new Pointer(0,0);
-//        Pointer right = new Pointer(1,1);
-//
-//        if(left.equals(firstNode) && right.equals(secondNode) || left.equals(secondNode) &&  right.equals(firstNode))
-//            this.secondNode = secondNode;
     }
 
     public int getFirstValue() {

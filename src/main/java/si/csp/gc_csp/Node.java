@@ -7,17 +7,13 @@ import java.util.Arrays;
  *         Created on 05.04.2017.
  */
 public class Node {
-    private static int[] domain; //todo set outside
+    private static int[] domain;
 
     private int current;
     private int[] possible;
     private int lastPossible;
 
     public Node() {
-        //todo delete
-        if (Node.domain == null)
-            throw new IllegalStateException("Domain not initialized");
-
         current = 0;
         possible = Arrays.copyOf(domain, domain.length);
         lastPossible = domain.length - 1;

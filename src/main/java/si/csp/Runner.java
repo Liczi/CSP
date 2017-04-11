@@ -6,37 +6,23 @@ import si.csp.gc_csp.CSPStrategy;
 import si.csp.utils.BaseGraphIterator;
 import si.csp.utils.GraphIterator;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class Runner {
+    private static final int UNIT_COST = 1;
 
 
     static public void main(String args[]) {
         //backtracking with standard from first to last heuristic
-        GraphIterator baseIterator = new BaseGraphIterator();
-        CSPStrategy backtracking = new Backtracking(4, baseIterator);
+        GraphIterator baseIterator = new BaseGraphIterator(UNIT_COST);
+        CSPStrategy backtracking = new Backtracking(3, baseIterator);
+        long now = System.currentTimeMillis();
         List<int[][]> results = backtracking.solve();
-        //results.forEach(Runner::displayResult);
-
-
-//        //todo delete this check !
-//        System.out.println(
-//                results.stream()
-//                        .map(result -> results.stream()
-//                                .filter(inner -> Arrays.deepEquals(result, inner))
-//                                .count())
-//                        .reduce(Long::sum)
-//                        .get()
-//        );
-//        //todo
-
-
+        System.out.println("Rozwiązania znaleziono w: " + ((double)(System.currentTimeMillis() - now))/1000 + " sekund");
         System.out.println("Znaleziono " + results.size() + " rozwiązań, koszt: " + backtracking.getCost());
-
     }
 
-    public static void displayResult(int[][] result) {
+    public static void displayResults(int[][] result) {
         int N = result.length;
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {

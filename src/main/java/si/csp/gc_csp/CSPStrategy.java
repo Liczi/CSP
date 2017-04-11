@@ -17,17 +17,18 @@ public abstract class CSPStrategy {
     protected GraphIterator iterator;
     protected int N;
     protected Set<Edge> edges;
-    private int cost;
+
 
     public CSPStrategy(int n, GraphIterator iterator) {
-        initialize(n);
         this.iterator = iterator;
+        initialize(n);
     }
 
     private void initialize(int N) {
-        cost = 0;
-        edges = new HashSet<>(); //todo consider sorted set
+        edges = new HashSet<>();
         this.N = N;
+        iterator.setN(N);
+
         int domainSize = N % 2 == 0 ? 2 * N : 2 * N + 1;
         int[] domain = new int[domainSize];
 
@@ -89,52 +90,17 @@ public abstract class CSPStrategy {
      * @param current pointer to the current node
      * @return false if uniqueness of set is violated
      */
-    //todo make sure to updateEdges on reseting node (on stepBackward?)
     private boolean updateEdges(Pointer current) {
         int currentValue = getNodeValue(current);
-        //todo delete this check
-//        if (currentValue == 0) {
-//            throw new IllegalStateException("Current node value not set");
-//        }
-
-//        //todo delete this check
-//        GraphIterator iterator = new BaseGraphIterator();
-//        iterator.initialize(N);
-//        while(iterator.hasNext()) {
-//            if (iterator.next().equals(current)) break;
-//        }
-//        int dist = 0;
-//        while(iterator.hasPrevious()) {
-//            iterator.previous();
-//            dist++;
-//        }
-//        int x;
-//        if(dist != edges.size())
-//           x=1;
-//        //delete up
-
-        //todo think if it wouldnt be better to create edges, check via contains and then add if necessary
-//        boolean valid = Arrays.stream(neighbours)
-//                .map(neighbour -> edges.stream()
-//                        .anyMatch(edge -> edge.contains(currentValue, getNodeValue(neighbour))))
-//                .reduce(Boolean::logicalAnd)
-//                .get();
-//
-//        if (valid) {
-//            for (Pointer p :
-//                    neighbours) {
-//                edges.add(new Edge(getNodeValue(p), currentValue, p, current));
-//            }
-//            return true;
-//        }
-//        return false;
 
         Pointer[] neighbours = getNeighbours(current);
         Set<Edge> newEdges = new HashSet<>();
+
         for (Pointer p : neighbours) {
             if (!newEdges.add(new Edge(getNodeValue(p), currentValue, p, current)))
                 return false;
         }
+
         if (newEdges.stream().noneMatch(newEdge -> edges.contains(newEdge))) {
             edges.addAll(newEdges);
             return true;
@@ -143,10 +109,7 @@ public abstract class CSPStrategy {
     }
 
     protected void deleteEdges(Pointer pointer) {
-        //todo check why edge.contains very often checks for the last node
         edges.removeIf(edge -> edge.contains(pointer));
-
-        int x=0;
     }
 
     protected Node getNodeAt(Pointer pointer) {
@@ -164,16 +127,10 @@ public abstract class CSPStrategy {
                 .toArray(int[][]::new);
     }
 
-    protected void increaseCost() {
-        cost += getUnitCost();
-    }
-
-    public int getCost() {
-        return cost;
+    public long getCost() {
+        return iterator.getCost();
     }
 
     abstract public List<int[][]> solve();
-
-    abstract protected int getUnitCost();
 }
 

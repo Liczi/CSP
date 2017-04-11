@@ -10,20 +10,14 @@ import java.util.List;
  */
 public class ForwardChecking extends CSPStrategy{
 
-    private final int UNIT_COST = 1;
-
     public ForwardChecking(int n, GraphIterator iterator) {
         super(n, iterator);
     }
 
     @Override
     public List<int[][]> solve() {
-        //todo implement body
         return null;
     }
 
-    @Override
-    protected int getUnitCost() {
-        return UNIT_COST;
-    }
+
 }
