@@ -10,7 +10,8 @@ public class Node {
     private static int[] domain;
 
     private int current;
-    private int[] possible;
+    private int[] possible; //todo separate Node definition for backtracking, it needs no "possible" table
+                            //todo forward-checking implementation on tables is very unsatisfying
     private int lastPossible;
 
     public Node() {
@@ -60,25 +61,33 @@ public class Node {
         for (int i = 0; i < possible.length; i++) {
             if (possible[i] == value) {
                 possible[i] = 0;
-                if (lastPossible == i)
-                    lastPossible--;
-                return;
             }
         }
     }
 
-    void decrementLastPossible() {
-        for (int i = lastPossible - 1; i > -1; i--) {
+    //todo make sure that when we move last Possible there is always remove method called
+    void removeCurrentFromDomain() {
+        possible[lastPossible] = 0;
+    }
+
+    //todo make sure that its called only after removing
+    int nextPossible() {
+        for (int i = lastPossible; i > -1; i--) {
             if (possible[i] > 0) {
                 lastPossible = i;
-                return;
+                return lastPossible;
             }
 
         }
+        return lastPossible = -1;
     }
 
     void setCurrentAsLastPossible() {
         setCurrent(possible[lastPossible]);
+    }
+
+    void setCurrentAsNextPossible() {
+        setCurrent(possible[nextPossible()]);
     }
 
     @Override

@@ -37,13 +37,25 @@ public class ForwardChecking extends CSPStrategy {
     private Pointer stepForward(Pointer current) {
         Node currentNode = getNodeAt(current);
 
-        currentNode.setCurrentAsLastPossible();
+        currentNode.setCurrentAsNextPossible();
         if (iterator.hasNext()) {
             Pointer next = iterator.next();
-            Arrays.stream(getSuccessors(current))
-                    .forEach(neighbour -> updateDomain(currentNode.getCurrent(), neighbour));
-
-            return stepForward(next);
+            Pointer[] successors = getSuccessors(current);
+            if (Arrays.stream(successors)
+                    .map(neighbour -> updateDomain(currentNode.getCurrent(), neighbour))
+                    .reduce(Boolean::logicalAnd)
+                    .get()) { //all ok, next
+                stepForward(next);
+            } else {//updating domain gives one node no available values
+                // reset successors
+                for (Pointer successor :
+                        successors) {
+                    getNodeAt(successor).restoreDomain();
+                }
+                currentNode.removeCurrentFromDomain();
+                currentNode.setCurrent(0);
+                return stepForward(current);
+            }
         } else { //we are at the last node, save all current domain values to the result
 
             //todo add results and reset this node
@@ -52,13 +64,18 @@ public class ForwardChecking extends CSPStrategy {
     }
 
     private Pointer stepBackward(Pointer pointer) {
+        Node currentNode = getNodeAt(pointer);
 
-        if (iterator.hasPrevious()) {
-            //todo reset this node
-            return iterator.previous();
-        } else { //we are at starting node
-            //todo check if there are values to assign (probably no recursion)
-            return null;
+        if (currentNode.getLastPossible() > -1) {
+            //
+        } else {
+            if (iterator.hasPrevious()) {
+                //todo reset this node
+                return iterator.previous();
+            } else { //we are at starting node
+                //todo check if there are values to assign (probably no recursion)
+                return null;
+            }
         }
     }
 
@@ -69,11 +86,15 @@ public class ForwardChecking extends CSPStrategy {
      *
      * @param previousValue
      * @param toUpdate
+     * @return if the toUpdate node has more values possible
      */
-    private void updateDomain(int previousValue, Pointer toUpdate) {
+    private boolean updateDomain(int previousValue, Pointer toUpdate) {
         Node toUpdateNode = getNodeAt(toUpdate);
 
+        //neighbour
         toUpdateNode.removeFromDomain(previousValue);
+
+        //edges
         int[] possible = toUpdateNode.getPossible();
         for (int i = 0; i < possible.length; i++) {
             int value = possible[i];
@@ -83,6 +104,8 @@ public class ForwardChecking extends CSPStrategy {
                     possible[i] = 0;
             }
         }
+
+        return toUpdateNode.nextPossible() > -1;
     }
 
 
