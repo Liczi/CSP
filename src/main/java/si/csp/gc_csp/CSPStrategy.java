@@ -1,10 +1,11 @@
 package si.csp.gc_csp;
 
-import si.csp.utils.BaseGraphIterator;
+import si.csp.gc_csp.backtracking.Node;
 import si.csp.utils.GraphIterator;
 import si.csp.utils.Pointer;
 
 import java.util.*;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -16,8 +17,7 @@ public abstract class CSPStrategy {
     protected Node[][] graph;
     protected GraphIterator iterator;
     protected int N;
-    protected Set<Edge> edges;
-
+    protected ColorPairDuplicateManager pairDuplicateManager;
 
     public CSPStrategy(int n, GraphIterator iterator) {
         this.iterator = iterator;
@@ -25,11 +25,12 @@ public abstract class CSPStrategy {
     }
 
     private void initialize(int N) {
-        edges = new HashSet<>();
+//        edges = new HashSet<>();
         this.N = N;
         iterator.setN(N);
 
         int domainSize = N % 2 == 0 ? 2 * N : 2 * N + 1;
+        pairDuplicateManager = new ColorPairDuplicateManager(domainSize);
         int[] domain = new int[domainSize];
 
         //create domain {1, ... , domainSize}
@@ -74,14 +75,15 @@ public abstract class CSPStrategy {
      * Checks constraints for all nodes till current Pointer
      *
      * @param current node
+     * @param value value which will be set if check results with true
      * @return false if constraints are violated
      */
 
-    protected boolean checkConstraints(Pointer current) {
+    protected boolean checkConstraints(Pointer current, int value) {
         return Arrays.stream(getNeighbours(current))
                 .map(this::getNodeValue)
-                .noneMatch(value -> value == getNodeValue(current))
-                && updateEdges(current);
+                .noneMatch(neighbourValue -> neighbourValue == value)
+                && updateEdges(current, value);
     }
 
     /**
@@ -90,26 +92,27 @@ public abstract class CSPStrategy {
      * @param current pointer to the current node
      * @return false if uniqueness of set is violated
      */
-    private boolean updateEdges(Pointer current) {
-        int currentValue = getNodeValue(current);
+    private boolean updateEdges(Pointer current, int value) {
+        int[] neighbourValues = Arrays.stream(getNeighbours(current)).mapToInt(this::getNodeValue).toArray();
 
-        Pointer[] neighbours = getNeighbours(current);
-        Set<Edge> newEdges = new HashSet<>();
+        if(Arrays.stream(neighbourValues).distinct().count() != neighbourValues.length)
+            return false;
 
-        for (Pointer p : neighbours) {
-            if (!newEdges.add(new Edge(getNodeValue(p), currentValue, p, current)))
-                return false;
-        }
+        if(Arrays.stream(neighbourValues).anyMatch(neighbourValue -> pairDuplicateManager.hasColorsPair(neighbourValue, value)))
+            return false;
 
-        if (newEdges.stream().noneMatch(newEdge -> edges.contains(newEdge))) {
-            edges.addAll(newEdges);
-            return true;
-        }
-        return false;
+        Arrays.stream(neighbourValues).forEach(neighbourValue -> pairDuplicateManager.addPair(neighbourValue, value));
+
+        return true;
     }
 
     protected void deleteEdges(Pointer pointer) {
-        edges.removeIf(edge -> edge.contains(pointer));
+        int currentValue = getNodeValue(pointer);
+
+        Pointer[] neighbours = getNeighbours(pointer);
+        for (Pointer neighbour : neighbours) {
+            pairDuplicateManager.deletePair(getNodeValue(neighbour), currentValue);
+        }
     }
 
     protected Node getNodeAt(Pointer pointer) {

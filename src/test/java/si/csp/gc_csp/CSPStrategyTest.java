@@ -3,7 +3,8 @@ package si.csp.gc_csp;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import si.csp.Runner;
+import si.csp.gc_csp.backtracking.Backtracking;
+import si.csp.gc_csp.backtracking.Node;
 import si.csp.utils.Pointer;
 
 
