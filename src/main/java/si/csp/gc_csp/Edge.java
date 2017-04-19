@@ -2,10 +2,14 @@ package si.csp.gc_csp;
 
 import si.csp.utils.Pointer;
 
+//todo change to boolean[][] (domain.length x domain.length) in CSPStrategy as a map for used colors
+//todo consider using separate class for holding this table and access methods
+
 /**
  * @author Jakub Licznerski
  *         Created on 07.04.2017.
  */
+@Deprecated
 public class Edge {
     private int firstValue;
     private int secondValue;

@@ -1,6 +1,4 @@
-package si.csp.gc_csp;
-
-import java.util.Arrays;
+package si.csp.gc_csp.backtracking;
 
 /**
  * @author Jakub Licznerski
@@ -10,12 +8,10 @@ public class Node {
     private static int[] domain;
 
     private int current;
-    private int[] possible;
     private int lastPossible;
 
     public Node() {
         current = 0;
-        possible = Arrays.copyOf(domain, domain.length);
         lastPossible = domain.length - 1;
     }
 
@@ -31,10 +27,6 @@ public class Node {
         this.current = current;
     }
 
-    public int[] getPossible() {
-        return possible;
-    }
-
     public int getLastPossible() {
         return lastPossible;
     }
@@ -48,7 +40,7 @@ public class Node {
     }
 
     void setCurrentAsLastPossible() {
-        setCurrent(possible[lastPossible]);
+        setCurrent(domain[lastPossible]);
     }
 
     @Override

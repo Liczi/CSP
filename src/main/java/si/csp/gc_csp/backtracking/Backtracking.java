@@ -1,5 +1,6 @@
-package si.csp.gc_csp;
+package si.csp.gc_csp.backtracking;
 
+import si.csp.gc_csp.CSPStrategy;
 import si.csp.utils.GraphIterator;
 import si.csp.utils.Pointer;
 
