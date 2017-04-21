@@ -1,7 +1,7 @@
 package si.csp.gc_csp.forward_checking;
 
 import si.csp.gc_csp.CSPStrategy;
-import si.csp.gc_csp.Edge;
+import si.csp.gc_csp.ColorPairDuplicateManager;
 import si.csp.utils.GraphIterator;
 import si.csp.utils.Pointer;
 
@@ -22,6 +22,14 @@ public class ForwardChecking extends CSPStrategy {
     public ForwardChecking(int n, GraphIterator iterator) {
         super(n, iterator);
 
+        int domainSize = N % 2 == 0 ? 2 * N : 2 * N + 1;
+        int[] domain = new int[domainSize];
+
+        //create domain {1, ... , domainSize}
+        for (int i = 1; i <= domainSize; i++)
+            domain[i - 1] = i;
+        NodeF.setDomain(domain);
+
         graph = new NodeF[N][N];
 
         for (int i = 0; i < N; i++) {
@@ -29,6 +37,8 @@ public class ForwardChecking extends CSPStrategy {
                 graph[j][i] = new NodeF();
             }
         }
+
+        pairDuplicateManager = new ColorPairDuplicateManager(domainSize);
     }
 
     @Override
@@ -132,11 +142,11 @@ public class ForwardChecking extends CSPStrategy {
      * @return false if constraints are violated
      */
 
-    boolean checkConstraints(Pointer current) {
+    private boolean checkConstraints(Pointer current, int value) {
         return Arrays.stream(getNeighbours(current))
                 .map(this::getNodeValue)
-                .noneMatch(value -> value == getNodeValue(current))
-                && updateEdges(current);
+                .noneMatch(neighbourValue -> neighbourValue == value)
+                && updateEdges(current, value);
     }
 
     /**
@@ -145,25 +155,27 @@ public class ForwardChecking extends CSPStrategy {
      * @param current pointer to the current node
      * @return false if uniqueness of set is violated
      */
-    private boolean updateEdges(Pointer current) {
-        int currentValue = getNodeValue(current);
+    private boolean updateEdges(Pointer current, int value) {
+        int[] neighbourValues = Arrays.stream(getNeighbours(current)).mapToInt(this::getNodeValue).toArray();
 
-        Pointer[] neighbours = getNeighbours(current);
-        Set<Edge> newEdges = new HashSet<>();
+        if (Arrays.stream(neighbourValues).distinct().count() != neighbourValues.length)
+            return false;
 
-        for (Pointer p : neighbours) {
-            if (!newEdges.add(new Edge(getNodeValue(p), currentValue, p, current)))
-                return false;
-        }
+        if (Arrays.stream(neighbourValues).anyMatch(neighbourValue -> pairDuplicateManager.hasColorsPair(neighbourValue, value)))
+            return false;
 
-//        if (newEdges.stream().noneMatch(newEdge -> edges.contains(newEdge))) {
-//            edges.addAll(newEdges);
-//            return true;
-//        }
-//        return false;
+        Arrays.stream(neighbourValues).forEach(neighbourValue -> pairDuplicateManager.addPair(neighbourValue, value));
 
-        //todo delete
         return true;
+    }
+
+    private void deleteEdges(Pointer pointer) {
+        int currentValue = getNodeValue(pointer);
+
+        Pointer[] neighbours = getNeighbours(pointer);
+        for (Pointer neighbour : neighbours) {
+            pairDuplicateManager.deletePair(getNodeValue(neighbour), currentValue);
+        }
     }
 
     private void saveSolution(int[][] solution) {
@@ -202,10 +214,6 @@ public class ForwardChecking extends CSPStrategy {
 
     private int getNodeValue(Pointer pointer) {
         return getNodeAt(pointer).getCurrent();
-    }
-
-    private void deleteEdges(Pointer pointer) {
-//        edges.removeIf(edge -> edge.contains(pointer));
     }
 
     private NodeF getNodeAt(Pointer pointer) {

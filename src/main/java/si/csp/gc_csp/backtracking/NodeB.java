@@ -27,6 +27,10 @@ public class NodeB {
         return lastPossible;
     }
 
+    public int getLastPossibleValue() {
+        return domain[lastPossible];
+    }
+
     public void setLastPossible(int lastPossible) {
         this.lastPossible = lastPossible;
     }

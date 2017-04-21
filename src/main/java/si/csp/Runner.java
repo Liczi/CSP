@@ -15,7 +15,7 @@ public class Runner {
     static public void main(String args[]) {
         //backtracking with standard from first to last heuristic
         GraphIterator baseIterator = new BaseGraphIterator(UNIT_COST);
-        CSPStrategy backtracking = new Backtracking(2, baseIterator);
+        CSPStrategy backtracking = new Backtracking(3, baseIterator);
         long now = System.currentTimeMillis();
         List<int[][]> results = backtracking.solve();
         System.out.println("Rozwiązania znaleziono w: " + ((double)(System.currentTimeMillis() - now))/1000 + " sekund");
