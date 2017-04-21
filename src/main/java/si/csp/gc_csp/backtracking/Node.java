@@ -43,6 +43,10 @@ public class Node {
         setCurrent(domain[lastPossible]);
     }
 
+    int getLastPossibleValue() {
+        return domain[lastPossible];
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

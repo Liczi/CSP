@@ -42,23 +42,24 @@ public class Backtracking extends CSPStrategy {
 
         //there is some possible value for this node
         if (currentNode.getLastPossible() > -1) {
-            currentNode.setCurrentAsLastPossible();
-            if (checkConstraints(current)) {
+            int newValue = currentNode.getLastPossibleValue();
+            if (checkConstraints(current, newValue)) {
+                currentNode.setCurrentAsLastPossible();
                 if (iterator.hasNext()) {
                     //increase cost (we enter new node)
                     return stepForward(iterator.next());
                 } else { //we have a winner!
                     //add current solution to results, decrease domain and run again same node
                     saveSolution(getCurrentSolution());
-                    currentNode.setCurrent(0);
                     currentNode.setLastPossible(currentNode.getLastPossible() - 1);
                     deleteEdges(current);
+                    currentNode.setCurrent(0);
                     return stepForward(current);
                 }
             } else { //selected value violates constraints
-                currentNode.setCurrent(0);
                 currentNode.setLastPossible(currentNode.getLastPossible() - 1);
-                deleteEdges(current);
+//                deleteEdges(current); no need to delete edges
+                currentNode.setCurrent(0);
                 return stepForward(current);
             }
         }
@@ -78,16 +79,19 @@ public class Backtracking extends CSPStrategy {
         Node currentNode = getNodeAt(current);
 
         //reject current value, because it doesnt match any further configuration
-        currentNode.setCurrent(0);
         currentNode.setLastPossible(currentNode.getLastPossible() - 1);
-        deleteEdges(current);
+        if (currentNode.getCurrent() != 0) {
+            deleteEdges(current);
+            currentNode.setCurrent(0);
+        }
 
         if (currentNode.getLastPossible() > -1) {
-            currentNode.setCurrentAsLastPossible();
-            if (checkConstraints(current)) {
+            int newValue = currentNode.getLastPossibleValue();
+            if (checkConstraints(current, newValue)) {
+                currentNode.setCurrentAsLastPossible();
                 return iterator.next();
             } else { //constraints not met, next value
-                deleteEdges(current);
+//                deleteEdges(current);
                 return stepBackward(current);
             }
             //there must be next, because we did step back!
@@ -95,7 +99,7 @@ public class Backtracking extends CSPStrategy {
         else {
             if (iterator.hasPrevious()) {
                 currentNode.setLastPossible(currentNode.getDomainSize() - 1);
-                deleteEdges(current);
+                //deleteEdges(current);
                 return stepBackward(iterator.previous());
             } //if this condition not met, end of program
         }
