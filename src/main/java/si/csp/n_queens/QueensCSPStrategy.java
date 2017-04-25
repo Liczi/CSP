@@ -12,7 +12,8 @@ import java.util.List;
 public abstract class QueensCSPStrategy {
     protected int N;
     protected BoardIterator iterator;
-    private Boolean[][] board;
+    protected Boolean[][] board;
+
 
 
     public QueensCSPStrategy(int n, BoardIterator iterator) {
@@ -28,13 +29,23 @@ public abstract class QueensCSPStrategy {
         return board[pointer.getColIndex()][pointer.getRowIndex()];
     }
 
-    protected void setQueenAt(Pointer pointer) {
-        board[pointer.getColIndex()][pointer.getRowIndex()] = true;
+    protected void setField(Pointer field, Boolean value) {
+        board[field.getColIndex()][field.getRowIndex()] = value;
+    }
+
+
+    /**
+     *
+     * @param center
+     * @return returns vertical, horizontal and diagonal fields from the given center
+     */
+    protected Pointer[] getAllInRange(Pointer center) {
+        return null;
     }
 
     public long getCost() {
         return iterator.getCost();
     }
 
-    abstract public List<int[][]> solve();
+    abstract public List<boolean[][]> solve();
 }

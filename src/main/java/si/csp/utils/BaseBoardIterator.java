@@ -52,4 +52,18 @@ public class BaseBoardIterator extends BoardIterator {
         }
         throw new IllegalStateException("Called previous on the first element");
     }
+
+    @Override
+    public void resetAt(Pointer pointer) {
+        this.cost = 0;
+        this.current = pointer;
+    }
+
+    @Override
+    public BoardIterator copyFrom(Pointer startingPointer) {
+        BaseBoardIterator toReturn = new BaseBoardIterator((int) this.getCost());
+        toReturn.setN(N);
+        toReturn.current = new Pointer(startingPointer);
+        return toReturn;
+    }
 }

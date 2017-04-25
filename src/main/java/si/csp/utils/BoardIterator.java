@@ -26,7 +26,9 @@ public abstract class BoardIterator {
 
     public abstract Pointer previous();
 
-//    public abstract GraphIterator copyFrom(Pointer startingPointer);
+    public abstract void resetAt(Pointer pointer);
+
+    public abstract BoardIterator copyFrom(Pointer startingPointer);
 
     protected void increaseCost() {
         cost += unitCost;
