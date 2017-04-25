@@ -1,6 +1,6 @@
 package si.csp.gc_csp.backtracking;
 
-import si.csp.gc_csp.CSPStrategy;
+import si.csp.gc_csp.GraphCSPStrategy;
 import si.csp.gc_csp.ColorPairDuplicateManager;
 import si.csp.utils.GraphIterator;
 import si.csp.utils.Pointer;
@@ -8,19 +8,18 @@ import si.csp.utils.Pointer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
  * @author Jakub Licznerski
  *         Created on 05.04.2017.
  */
-public class Backtracking extends CSPStrategy {
+public class GraphBacktracking extends GraphCSPStrategy {
 
     private List<int[][]> result;
     private NodeB[][] graph;
 
-    public Backtracking(int n, GraphIterator iterator) {
+    public GraphBacktracking(int n, GraphIterator iterator) {
         super(n, iterator);
 
         int domainSize = N % 2 == 0 ? 2 * N : 2 * N + 1;

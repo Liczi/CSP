@@ -1,9 +1,8 @@
 package si.csp;
 
 
-import si.csp.gc_csp.backtracking.Backtracking;
-import si.csp.gc_csp.CSPStrategy;
-import si.csp.gc_csp.forward_checking.ForwardChecking;
+import si.csp.gc_csp.backtracking.GraphBacktracking;
+import si.csp.gc_csp.GraphCSPStrategy;
 import si.csp.utils.BaseGraphIterator;
 import si.csp.utils.GraphIterator;
 
@@ -16,7 +15,7 @@ public class Runner {
     static public void main(String args[]) {
         //backtracking with standard from first to last heuristic
         GraphIterator baseIterator = new BaseGraphIterator(UNIT_COST);
-        CSPStrategy backtracking = new Backtracking(4, baseIterator);
+        GraphCSPStrategy backtracking = new GraphBacktracking(4, baseIterator);
         long now = System.currentTimeMillis();
         List<int[][]> results = backtracking.solve();
         System.out.println("Rozwiązania znaleziono w: " + ((double)(System.currentTimeMillis() - now))/1000 + " sekund");

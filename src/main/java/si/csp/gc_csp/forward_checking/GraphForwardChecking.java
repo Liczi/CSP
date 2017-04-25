@@ -1,7 +1,6 @@
 package si.csp.gc_csp.forward_checking;
 
-import si.csp.Runner;
-import si.csp.gc_csp.CSPStrategy;
+import si.csp.gc_csp.GraphCSPStrategy;
 import si.csp.gc_csp.ColorPairDuplicateManager;
 import si.csp.utils.GraphIterator;
 import si.csp.utils.Pointer;
@@ -13,14 +12,14 @@ import java.util.stream.Stream;
  * @author Jakub Licznerski
  *         Created on 05.04.2017.
  */
-public class ForwardChecking extends CSPStrategy {
+public class GraphForwardChecking extends GraphCSPStrategy {
 
     //todo powrot zrobic poprzez usuniecie wartosci
     private List<int[][]> result;
     private NodeF[][] graph;
 
 
-    public ForwardChecking(int n, GraphIterator iterator) {
+    public GraphForwardChecking(int n, GraphIterator iterator) {
         super(n, iterator);
 
         int domainSize = N % 2 == 0 ? 2 * N : 2 * N + 1;

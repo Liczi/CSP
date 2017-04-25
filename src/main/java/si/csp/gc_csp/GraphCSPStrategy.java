@@ -8,13 +8,13 @@ import java.util.*;
  * @author Jakub Licznerski
  *         Created on 05.04.2017.
  */
-public abstract class CSPStrategy {
+public abstract class GraphCSPStrategy {
 
     protected int N;
     protected GraphIterator iterator;
     protected ColorPairDuplicateManager pairDuplicateManager;
 
-    public CSPStrategy(int n, GraphIterator iterator) {
+    public GraphCSPStrategy(int n, GraphIterator iterator) {
         this.iterator = iterator;
         this.N = n;
         iterator.setN(N);
