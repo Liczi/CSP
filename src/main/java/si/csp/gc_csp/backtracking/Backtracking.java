@@ -2,7 +2,6 @@ package si.csp.gc_csp.backtracking;
 
 import si.csp.gc_csp.CSPStrategy;
 import si.csp.gc_csp.ColorPairDuplicateManager;
-import si.csp.gc_csp.forward_checking.NodeF;
 import si.csp.utils.GraphIterator;
 import si.csp.utils.Pointer;
 
@@ -39,7 +38,6 @@ public class Backtracking extends CSPStrategy {
                 graph[j][i] = new NodeB();
             }
         }
-
         pairDuplicateManager = new ColorPairDuplicateManager(domainSize);
     }
 
@@ -82,7 +80,6 @@ public class Backtracking extends CSPStrategy {
                 }
             } else { //selected value violates constraints
                 currentNode.setLastPossible(currentNode.getLastPossible() - 1);
-//                deleteEdges(current); no need to delete edges
                 currentNode.setCurrent(0);
                 return stepForward(current);
             }
@@ -93,7 +90,6 @@ public class Backtracking extends CSPStrategy {
             currentNode.setCurrent(0);
             currentNode.setLastPossible(currentNode.getDomainSize() - 1);
 
-            //update edges (delete all edges from current pointer)
             return iterator.previous();
         }
     }
@@ -115,7 +111,6 @@ public class Backtracking extends CSPStrategy {
                 currentNode.setCurrentAsLastPossible();
                 return iterator.next();
             } else { //constraints not met, next value
-//                deleteEdges(current);
                 return stepBackward(current);
             }
             //there must be next, because we did step back!
@@ -123,14 +118,12 @@ public class Backtracking extends CSPStrategy {
         else {
             if (iterator.hasPrevious()) {
                 currentNode.setLastPossible(currentNode.getDomainSize() - 1);
-                //deleteEdges(current);
                 return stepBackward(iterator.previous());
             } //if this condition not met, end of program
         }
 
         return null;
     }
-
 
     private boolean checkConstraints(Pointer current, int value) {
         return Arrays.stream(getNeighbours(current))
@@ -192,20 +185,9 @@ public class Backtracking extends CSPStrategy {
                 .toArray(Pointer[]::new);
     }
 
-    //todo method vulnerable to traversing direction
-    Pointer[] getSuccessors(Pointer pointer) {
-        return Stream.of(
-                Pointer.build(pointer.getColIndex() + 1, pointer.getRowIndex(), N),
-                Pointer.build(pointer.getColIndex(), pointer.getRowIndex() + 1, N)
-        )
-                .filter(Objects::nonNull)
-                .toArray(Pointer[]::new);
-    }
-
     private int getNodeValue(Pointer pointer) {
         return getNodeAt(pointer).getCurrent();
     }
-
 
     private NodeB getNodeAt(Pointer pointer) {
         return graph[pointer.getColIndex()][pointer.getRowIndex()];

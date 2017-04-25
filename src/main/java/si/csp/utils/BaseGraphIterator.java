@@ -1,5 +1,8 @@
 package si.csp.utils;
 
+import java.util.Objects;
+import java.util.stream.Stream;
+
 /**
  * @author Jakub Licznerski
  *         Created on 07.04.2017.
@@ -10,6 +13,24 @@ public class BaseGraphIterator extends GraphIterator {
         this.N = -1; //to avoid initialization errors
         this.cost = 0;
         this.current = new Pointer(-1, 0);
+    }
+
+    @Override
+    public Pointer[] getSuccessors(Pointer pointer) {
+        return Stream.of(
+                Pointer.build(pointer.getColIndex() + 1, pointer.getRowIndex(), N),
+                Pointer.build(pointer.getColIndex(), pointer.getRowIndex() + 1, N)
+        )
+                .filter(Objects::nonNull)
+                .toArray(Pointer[]::new);
+    }
+
+    @Override
+    public GraphIterator copyFrom(Pointer startingPointer) {
+        BaseGraphIterator toReturn = new BaseGraphIterator(1);
+        toReturn.setN(N);
+        toReturn.current = new Pointer(startingPointer);
+        return toReturn;
     }
 
     @Override

@@ -41,8 +41,8 @@ public class NodeF {
         }
     }
 
-    public void removeFromDomain(int index) {
-        available[index] = false;
+    public void removeFromDomain(int value) {
+        available[value - 1] = false;
     }
 
     public void removeCurrentFromDomain() {
@@ -51,12 +51,23 @@ public class NodeF {
 
     //method vulnerable to not standard domain
     public int nextPossible() {
-        for (int i = available.length - 1; i > -1; i++) {
+        for (int i = available.length - 1; i > -1; i--) {
             if (available[i]) {
                 return i + 1;
             }
         }
         return -1;
+    }
+
+    public boolean setCurrentAsNextPossible() {
+        for (int i = available.length - 1; i > -1; i--) {
+            if (available[i]) {
+                setCurrent(i + 1);
+//                available[i] = false;
+                return true;
+            }
+        }
+        return false;
     }
 
     public int getAvailableSize() {
@@ -66,5 +77,13 @@ public class NodeF {
                 size++;
         }
         return size;
+    }
+
+    public boolean[] getAvailable() {
+        return available;
+    }
+
+    public void addToDomain(int value) {
+        available[value - 1] = true;
     }
 }

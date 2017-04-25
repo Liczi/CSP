@@ -1,5 +1,6 @@
 package si.csp.gc_csp.forward_checking;
 
+import si.csp.Runner;
 import si.csp.gc_csp.CSPStrategy;
 import si.csp.gc_csp.ColorPairDuplicateManager;
 import si.csp.utils.GraphIterator;
@@ -57,124 +58,235 @@ public class ForwardChecking extends CSPStrategy {
     private Pointer stepForward(Pointer current) {
         NodeF currentNode = getNodeAt(current);
 
-        //todo implement proper method
-//        currentNode.setCurrentAsNextPossible();
+        if (!currentNode.setCurrentAsNextPossible())
+            return iterator.previous();
+
         if (iterator.hasNext()) {
-            Pointer next = iterator.next();
-            Pointer[] successors = getSuccessors(current);
+            //add edges for current
+            Pointer[] successors = iterator.getSuccessors(current);
+            for (Pointer successor :
+                    successors) {
+                getNodeAt(successor).removeFromDomain(currentNode.getCurrent());
+            }
+            boolean valid = true;
+            for (Pointer neighbour :
+                    getNeighbours(current)) {
+                int neighbourValue = getNodeValue(neighbour);
+                pairDuplicateManager.addPair(currentNode.getCurrent(), neighbourValue);
+                valid &= updateConsequentForAdding(current, currentNode.getCurrent(), neighbourValue);
+            }
+
             if (Arrays.stream(successors)
-                    .map(neighbour -> updateDomain(currentNode.getCurrent(), neighbour))
+                    .map(neighbour -> updateDomainDeleting(currentNode.getCurrent(), neighbour))
                     .reduce(Boolean::logicalAnd)
-                    .get()) { //all ok, next
-                return stepForward(next);
-            } else {//updating domain gives one node no available values
+                    .get()
+                    && valid) {
+                return stepForward(iterator.next());
+            } else {//updating domain deleted all values from a node
                 // reset successors
                 for (Pointer successor :
                         successors) {
-                    getNodeAt(successor).restoreDomain();
+                    getNodeAt(successor).addToDomain(currentNode.getCurrent());
+                    updateDomainAdding(currentNode.getCurrent(), successor);
                 }
+
+                deleteEdges(current);
                 currentNode.removeCurrentFromDomain();
                 currentNode.setCurrent(0);
-                return stepForward(current);
+
+                if (currentNode.getAvailableSize() > 0)
+                    return stepForward(current);
+                else {
+                    return current;
+                }
             }
         } else { //we are at the last node, save all current domain values to the result
+            boolean[] available = currentNode.getAvailable();
 
-            //todo add results and reset this node
+            for (int i = 0; i < available.length; i++) {
+                if (available[i]) {
+                    currentNode.setCurrent(i + 1);
+                    saveSolution(getCurrentSolution());
+                }
+            }
+            currentNode.setCurrent(0);
             return iterator.previous();
         }
     }
 
-    private Pointer stepBackward(Pointer pointer) {
-        NodeF currentNode = getNodeAt(pointer);
+    private Pointer stepBackward(Pointer current) {
+        NodeF currentNode = getNodeAt(current);
 
-        //todo rethink
+        if (currentNode.getCurrent() != 0) {
+            deleteEdges(current);
+            currentNode.removeCurrentFromDomain();
+            currentNode.setCurrent(0);
+
+            for (Pointer successor :
+                    iterator.getSuccessors(current)) {
+                restoreValidDomain(successor);
+            }
+        }
         if (currentNode.getAvailableSize() > 0) {
-            //
+            //same as in stepforward
+            return current;
         } else {
             if (iterator.hasPrevious()) {
-                //todo reset this node
-                return iterator.previous();
-            } else { //we are at starting node
-                //todo check if there are values to assign (probably no recursion)
+                restoreValidDomain(current);
+                return stepBackward(iterator.previous());
+            } else { //we are at starting node and no values to assign
                 return null;
             }
         }
-
-        //todo what to return here?
-        return null;
     }
 
-    //todo consider passing Node objects
+    /**
+     * @param start  node which we added
+     * @param value1 left node value
+     * @param value2 right node value
+     * @return
+     */
+
+    private void updateConsequentForDeleting(Pointer start, int value1, int value2) {
+        GraphIterator iterator = this.iterator.copyFrom(start);
+
+        while (iterator.hasNext()) {
+            Pointer current = iterator.next();
+
+            Pointer[] neighbours = getNeighbours(current);
+
+            for (Pointer neighbour : neighbours) {
+                int neighbourValue = getNodeValue(neighbour);
+
+                if (value1 == neighbourValue) {
+                    getNodeAt(current).addToDomain(value2);
+                } else if (value2 == neighbourValue) {
+                    getNodeAt(current).addToDomain(value1);
+                }
+            }
+
+        }
+    }
+
+    private boolean updateConsequentForAdding(Pointer start, int value1, int value2) {
+        GraphIterator iterator = this.iterator.copyFrom(start);
+
+        while (iterator.hasNext()) { //todo check alse if there is are possible neighbours
+            Pointer current = iterator.next();
+
+            Pointer[] neighbours = getNeighbours(current);
+
+            for (Pointer neighbour : neighbours) {
+                int neighbourValue = getNodeValue(neighbour);
+
+                if (value1 == neighbourValue) {
+                    NodeF nodeAt = getNodeAt(current);
+                    nodeAt.removeFromDomain(value2);
+                    if (nodeAt.nextPossible() < 0)
+                        return false;
+                } else if (value2 == neighbourValue) {
+                    NodeF nodeAt = getNodeAt(current);
+                    nodeAt.removeFromDomain(value1);
+                    if (nodeAt.nextPossible() < 0)
+                        return false;
+                }
+            }
+
+        }
+
+        return true;
+    }
+
+    private void restoreValidDomain(Pointer current) {
+        NodeF currentNode = getNodeAt(current);
+
+        currentNode.restoreDomain();
+        Pointer[] neighbours = getNeighbours(current);
+        for (Pointer neighbour :
+                neighbours) {
+            currentNode.removeFromDomain(getNodeValue(neighbour));
+        }
+        boolean[] available = currentNode.getAvailable();
+        for (Pointer neighbour :
+                neighbours) {
+            int neighbourValue = getNodeValue(neighbour);
+            for (int i = 0; i < available.length; i++) {
+                if (available[i])
+                    if (pairDuplicateManager.hasColorsPair(neighbourValue, i + 1))
+                        currentNode.removeFromDomain(i + 1);
+            }
+        }
+    }
 
     /**
      * Updates the domain considering previous node (from)
      *
-     * @param previousValue
+     * @param value
      * @param toUpdate
      * @return if the toUpdate node has more values possible
      */
-    private boolean updateDomain(int previousValue, Pointer toUpdate) {
-        //todo rethink
-//        NodeF toUpdateNode = getNodeAt(toUpdate);
-//
-//        //neighbour
-//        toUpdateNode.removeFromDomain(previousValue);
-//
-//        //edges
-//        int[] possible = toUpdateNode.getPossible();
-//        for (int i = 0; i < possible.length; i++) {
-//            int value = possible[i];
-//            if (value > 0) {
-//                if (edges.stream()
-//                        .anyMatch(edge -> edge.contains(previousValue, value)))
-//                    possible[i] = 0;
-//            }
-//        }
-//
-//        return toUpdateNode.nextPossible() > -1;
-        return false;
+    private boolean updateDomainDeleting(int value, Pointer toUpdate) {
+        NodeF toUpdateNode = getNodeAt(toUpdate);
+        Pointer upper = Pointer.build(toUpdate.getColIndex(), toUpdate.getRowIndex() - 1, N);
+
+        //edges
+        boolean[] available = toUpdateNode.getAvailable();
+        for (int i = 0; i < available.length; i++) {
+            if (available[i]) {
+                if (pairDuplicateManager.hasColorsPair(value, i + 1))
+                    toUpdateNode.removeFromDomain(i + 1);
+                if (upper != null) {
+                    if (pairDuplicateManager.hasColorsPair(getNodeValue(upper), i + 1))
+                        toUpdateNode.removeFromDomain(i + 1);
+                }
+
+            }
+        }
+
+        return toUpdateNode.nextPossible() > -1;
     }
 
-    /**
-     * Checks constraints for all nodes till current Pointer
-     *
-     * @param current node
-     * @return false if constraints are violated
-     */
+    private void updateDomainAdding(int value, Pointer toUpdate) {
+        NodeF toUpdateNode = getNodeAt(toUpdate);
+        Pointer upper = Pointer.build(toUpdate.getColIndex(), toUpdate.getRowIndex() - 1, N);
 
-    private boolean checkConstraints(Pointer current, int value) {
-        return Arrays.stream(getNeighbours(current))
-                .map(this::getNodeValue)
-                .noneMatch(neighbourValue -> neighbourValue == value)
-                && updateEdges(current, value);
+        //edges
+        boolean[] available = toUpdateNode.getAvailable();
+        for (int i = 0; i < available.length; i++) {
+            if (!available[i]) {
+                if (pairDuplicateManager.hasColorsPair(value, i + 1))
+                    toUpdateNode.addToDomain(i + 1);
+                if (upper != null) {
+                    if (pairDuplicateManager.hasColorsPair(getNodeValue(upper), i + 1))
+                        toUpdateNode.addToDomain(i + 1);
+                }
+
+            }
+        }
     }
 
-    /**
-     * Updates the edges Set and checks the uniqueness of edges
-     *
-     * @param current pointer to the current node
-     * @return false if uniqueness of set is violated
-     */
-    private boolean updateEdges(Pointer current, int value) {
-        int[] neighbourValues = Arrays.stream(getNeighbours(current)).mapToInt(this::getNodeValue).toArray();
-
-        if (Arrays.stream(neighbourValues).distinct().count() != neighbourValues.length)
-            return false;
-
-        if (Arrays.stream(neighbourValues).anyMatch(neighbourValue -> pairDuplicateManager.hasColorsPair(neighbourValue, value)))
-            return false;
-
-        Arrays.stream(neighbourValues).forEach(neighbourValue -> pairDuplicateManager.addPair(neighbourValue, value));
-
-        return true;
-    }
+//    /**
+//     * Checks constraints for all nodes till current Pointer
+//     *
+//     * @param current node
+//     * @return false if constraints are violated
+//     */
+//
+//    private boolean checkConstraints(Pointer current, int value) {
+//        return Arrays.stream(getNeighbours(current))
+//                .map(this::getNodeValue)
+//                .noneMatch(neighbourValue -> neighbourValue == value)
+//                && updateEdges(current, value);
+//    }
 
     private void deleteEdges(Pointer pointer) {
         int currentValue = getNodeValue(pointer);
 
         Pointer[] neighbours = getNeighbours(pointer);
         for (Pointer neighbour : neighbours) {
-            pairDuplicateManager.deletePair(getNodeValue(neighbour), currentValue);
+            int neighbourValue = getNodeValue(neighbour);
+            pairDuplicateManager.deletePair(neighbourValue, currentValue);
+            updateConsequentForDeleting(pointer, neighbourValue, currentValue);
         }
     }
 
@@ -188,7 +300,7 @@ public class ForwardChecking extends CSPStrategy {
      * @param pointer pointer on the Node
      * @return array of neighbours
      */
-    Pointer[] getNeighbours(Pointer pointer) {
+    private Pointer[] getNeighbours(Pointer pointer) {
         Stream.Builder<Pointer> builder = Stream.builder();
         for (int i = -1; i < 2; i += 2) {
             builder.add(Pointer.build(pointer.getColIndex() + i, pointer.getRowIndex(), N));
@@ -199,16 +311,6 @@ public class ForwardChecking extends CSPStrategy {
 
         return builder.build()
                 .filter(ptr -> ptr != null && getNodeValue(ptr) > 0)
-                .toArray(Pointer[]::new);
-    }
-
-    //todo method vulnerable to traversing direction
-    Pointer[] getSuccessors(Pointer pointer) {
-        return Stream.of(
-                Pointer.build(pointer.getColIndex() + 1, pointer.getRowIndex(), N),
-                Pointer.build(pointer.getColIndex(), pointer.getRowIndex() + 1, N)
-        )
-                .filter(Objects::nonNull)
                 .toArray(Pointer[]::new);
     }
 

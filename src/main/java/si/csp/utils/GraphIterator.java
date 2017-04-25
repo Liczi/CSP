@@ -21,6 +21,15 @@ public abstract class GraphIterator {
 
     public abstract Pointer previous();
 
+    /**
+     *
+     * @param pointer
+     * @return pointers to the next node and descendant
+     */
+    public abstract Pointer[] getSuccessors(Pointer pointer);
+
+    public abstract GraphIterator copyFrom(Pointer startingPointer);
+
     protected long cost;
 
     private int unitCost;
@@ -29,6 +38,7 @@ public abstract class GraphIterator {
         this.cost = 0;
         this.unitCost = unitCost;
     }
+
 
     protected void increaseCost() {
         cost += unitCost;
