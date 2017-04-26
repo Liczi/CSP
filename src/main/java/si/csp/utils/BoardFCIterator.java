@@ -70,6 +70,11 @@ public class BoardFCIterator extends BoardIterator {
     }
 
     @Override
+    public Pointer step() {
+        throw new UnsupportedOperationException("Unsupported");
+    }
+
+    @Override
     public void resetAt(Pointer pointer) {
         this.cost = 0;
         this.current = pointer;

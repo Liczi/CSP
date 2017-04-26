@@ -62,7 +62,7 @@ public class QueensBacktracking extends QueensCSPStrategy {
         //rewind to the field on which is a queen
         Pointer rewind = new Pointer(current);
         while (iterator.hasNext() && !isQueenAt(rewind)) {
-            rewind = iterator.next();
+            rewind = iterator.step();
         }
 
         setField(current, false);

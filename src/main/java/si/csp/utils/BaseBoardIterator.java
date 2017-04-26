@@ -66,6 +66,15 @@ public class BaseBoardIterator extends BoardIterator {
         throw new IllegalStateException("Called next on the last element");
     }
 
+    @Override
+    public Pointer step() {
+        if (current.getColIndex() < N - 1) {
+            current.setColIndex(current.getColIndex() + 1);
+            return current;
+        }
+        throw new IllegalStateException("Called next on the last element");
+    }
+
 //    @Override
 //    public Pointer previous() {
 //        if (current.getColIndex() > 0) {

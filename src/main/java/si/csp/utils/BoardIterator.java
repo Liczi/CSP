@@ -32,6 +32,8 @@ public abstract class BoardIterator {
 
     public abstract Pointer next();
 
+    public abstract Pointer step();
+
 //    public abstract Pointer previous();
 
     public abstract void resetAt(Pointer pointer);

@@ -3,6 +3,7 @@ package si.csp;
 
 import si.csp.gc_csp.backtracking.GraphBacktracking;
 import si.csp.gc_csp.GraphCSPStrategy;
+import si.csp.gc_csp.forward_checking.GraphForwardChecking;
 import si.csp.n_queens.QueensCSPStrategy;
 import si.csp.n_queens.backtracking.QueensBacktracking;
 import si.csp.n_queens.forward_checking.QueenForwardChecking;
@@ -16,7 +17,10 @@ public class Runner {
 
     static public void main(String args[]) {
 
-        runGraphBacktrackingStandard(30);
+        for (int i = 5; i < 15 ; i++) {
+            runQueensBacktrackingStandard(i);
+        }
+
 
     }
 
@@ -24,6 +28,16 @@ public class Runner {
         //backtracking with standard from first to last heuristic
         GraphIterator baseIterator = new BaseGraphIterator(UNIT_COST);
         GraphCSPStrategy backtracking = new GraphBacktracking(N, baseIterator);
+        long now = System.currentTimeMillis();
+        List<int[][]> results = backtracking.solve();
+        System.out.println("Rozwiązania znaleziono w: " + ((double)(System.currentTimeMillis() - now))/1000 + " sekund");
+        System.out.println("Znaleziono " + results.size() + " rozwiązań, koszt: " + backtracking.getCost());
+    }
+
+    private static void runGraphForwardCheckingStandard(int N) {
+        //backtracking with standard from first to last heuristic
+        GraphIterator baseIterator = new BaseGraphIterator(UNIT_COST);
+        GraphCSPStrategy backtracking = new GraphForwardChecking(N, baseIterator);
         long now = System.currentTimeMillis();
         List<int[][]> results = backtracking.solve();
         System.out.println("Rozwiązania znaleziono w: " + ((double)(System.currentTimeMillis() - now))/1000 + " sekund");
