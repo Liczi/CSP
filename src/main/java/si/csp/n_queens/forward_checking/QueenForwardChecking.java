@@ -19,7 +19,7 @@ public class QueenForwardChecking extends QueensCSPStrategy {
     }
 
     @Override
-    public List<int[][]> solve() {
+    public List<boolean[][]> solve() {
         return null;
     }
 }

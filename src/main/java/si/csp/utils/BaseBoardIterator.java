@@ -15,23 +15,51 @@ public class BaseBoardIterator extends BoardIterator {
 
     @Override
     public boolean hasNext() {
-        return current.getColIndex() < N - 1 || current.getRowIndex() < N - 1;
+        return current.getColIndex() < N - 1;
     }
 
     @Override
     public boolean hasPrevious() {
-        return current.getColIndex() > 0 || current.getRowIndex() > 0;
+        return current.getColIndex() > 0;
     }
+
+    @Override
+    public boolean hasNextLevel() {
+        return current.getRowIndex() < N - 1;
+    }
+
+    @Override
+    public boolean hasPreviousLevel() {
+        return current.getRowIndex() > 0;
+    }
+
+    @Override
+    public Pointer nextLevel() {
+        if (current.getRowIndex() >= N - 1) {
+            throw new IllegalStateException("Called nextLevel on the last level");
+        }
+        increaseCost();
+        current.setRowIndex(current.getRowIndex() + 1);
+        current.setColIndex(0);
+        return current;
+    }
+
+    @Override
+    public Pointer previousLevel() {
+        if (current.getRowIndex() <= 0) {
+            throw new IllegalStateException("Called previousLevel on the first level");
+        }
+        increaseCost();
+        current.setRowIndex(current.getRowIndex() - 1);
+        current.setColIndex(0);
+        return current;
+    }
+
 
     @Override
     public Pointer next() {
         if (current.getColIndex() < N - 1) {
             current.setColIndex(current.getColIndex() + 1);
-            increaseCost();
-            return current;
-        } else if (current.getRowIndex() < N - 1) {
-            current.setColIndex(0);
-            current.setRowIndex(current.getRowIndex() + 1);
             increaseCost();
             return current;
         }
@@ -42,11 +70,6 @@ public class BaseBoardIterator extends BoardIterator {
     public Pointer previous() {
         if (current.getColIndex() > 0) {
             current.setColIndex(current.getColIndex() - 1);
-            increaseCost();
-            return current;
-        } else if (current.getRowIndex() > 0) {
-            current.setColIndex(N - 1);
-            current.setRowIndex(current.getRowIndex() - 1);
             increaseCost();
             return current;
         }

@@ -12,7 +12,8 @@ import java.util.List;
 public abstract class QueensCSPStrategy {
     protected int N;
     protected BoardIterator iterator;
-    protected Boolean[][] board;
+    protected boolean[][] board;
+    protected int currentQueens;
 
 
 
@@ -20,8 +21,9 @@ public abstract class QueensCSPStrategy {
         this.iterator = iterator;
         this.N = n;
         iterator.setN(N);
+        currentQueens = 0;
 
-        board = new Boolean[N][N];
+        board = new boolean[N][N];
     }
 
 
@@ -29,10 +31,15 @@ public abstract class QueensCSPStrategy {
         return board[pointer.getColIndex()][pointer.getRowIndex()];
     }
 
-    protected void setField(Pointer field, Boolean value) {
+    protected void setField(Pointer field, boolean value) {
         board[field.getColIndex()][field.getRowIndex()] = value;
     }
 
+    protected void clearRow(int row) {
+        for (int i = 0; i < board.length; i++) {
+            board[i][row] = false;
+        }
+    }
 
     /**
      *

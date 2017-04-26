@@ -22,6 +22,14 @@ public abstract class BoardIterator {
 
     public abstract boolean hasPrevious();
 
+    public abstract boolean hasNextLevel();
+
+    public abstract boolean hasPreviousLevel();
+
+    public abstract Pointer nextLevel();
+
+    public abstract Pointer previousLevel();
+
     public abstract Pointer next();
 
     public abstract Pointer previous();
