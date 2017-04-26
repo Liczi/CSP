@@ -20,9 +20,9 @@ public abstract class BoardIterator {
 
     public abstract boolean hasNext();
 
-    public abstract boolean hasPrevious();
+//    public abstract boolean hasPrevious();
 
-    public abstract boolean hasNextLevel();
+    public abstract boolean hasNextLevel(); //todo is there need to use it
 
     public abstract boolean hasPreviousLevel();
 
@@ -32,11 +32,13 @@ public abstract class BoardIterator {
 
     public abstract Pointer next();
 
-    public abstract Pointer previous();
+//    public abstract Pointer previous();
 
     public abstract void resetAt(Pointer pointer);
 
     public abstract BoardIterator copyFrom(Pointer startingPointer);
+
+    public abstract void setBoardMask(int[][] boardMask);
 
     protected void increaseCost() {
         cost += unitCost;

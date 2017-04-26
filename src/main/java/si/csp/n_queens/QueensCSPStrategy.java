@@ -14,6 +14,7 @@ public abstract class QueensCSPStrategy {
     protected BoardIterator iterator;
     protected boolean[][] board;
     protected int currentQueens;
+    protected List<boolean[][]> result;
 
 
 
@@ -39,6 +40,20 @@ public abstract class QueensCSPStrategy {
         for (int i = 0; i < board.length; i++) {
             board[i][row] = false;
         }
+    }
+
+    protected boolean[][] getCurrentSolution() {
+        boolean[][] result = new boolean[N][N];
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board.length; j++) {
+                result[i][j] = board[i][j];
+            }
+        }
+        return result;
+    }
+
+    protected void saveSolution(boolean[][] solution) {
+        result.add(solution);
     }
 
     /**
