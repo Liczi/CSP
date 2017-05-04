@@ -1,7 +1,5 @@
 package si.csp.utils;
 
-import sun.plugin.dom.exception.InvalidStateException;
-
 /**
  * @author Jakub Licznerski
  *         Created on 26.04.2017.
@@ -107,7 +105,7 @@ public class BoardFCIterator extends BoardIterator {
                 return current;
             }
         }
-        throw new InvalidStateException("Called next row without check");
+        throw new IllegalStateException("Called next row without check");
     }
 
     private boolean hasNextInRow(Pointer current) {
